@@ -44,15 +44,23 @@ function validateForm() {
                 throw new Error("Du måste vara mellan 10 och 15 år");
             } else {
                 ageInput.classList.remove('error');
-            }
-
-            for(let i=0; i<gender.length; i++) {
-                gender[i].addEventListener('change', handleRadioChange);
-        
+            }444444444444444444441
+            for (let i = 0; i < gender.length; i++) {
+                gender[i].addEventListener('change', () => {
+                  // Ta bort 'error'-klassen från alla radio-knappar
+                for (let j = 0; j < gender.length; j++) {
+                    gender[j].classList.remove('error');
+                }
+            
+                if (gender[i].checked) {
+                    checked = true;
+                    }
+                });
+            
                 if (gender[i].checked) {
                     checked = true;
                 }
-        }
+            }
             
             if (!checked) {
                 // Ingen radio-knapp är markerad
@@ -70,14 +78,6 @@ function validateForm() {
         if (errors.length > 0) { //Kollar om errors finns i arrayen 
             return errors; //Returnerar errors från funktionen
         }
-
-        function handleRadioChange() {
-            // Ta bort 'error'-klassen från alla radio-knappar
-            for (let j = 0; j < gender.length; j++) {
-                gender[j].classList.remove('error');
-            }
-        }
-        
         startGame();
     }
 
@@ -104,3 +104,4 @@ function startGame() {
     audioElement.play();
     audioElement.volume = 0.050;
 }
+
