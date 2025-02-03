@@ -80,3 +80,11 @@ body {
         gap: 0.5rem;
     }
 }
+
+.d-none {
+    display: none;
+}
+
+.error {
+    outline: 3px solid rgb(255, 0, 0);
+}
