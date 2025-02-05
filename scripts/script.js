@@ -11,16 +11,17 @@ const oGameData = {
     trainerAge : 0,
     trainerGender : '',
     // Metod som nollställer datan i oGameData
-    init : () => {
-        pokemonNumbers = [];
-        nmbrOfCaughtPokemons = 0;
-        startTime = 0;
-        endTime = 0;
-        timerId = null;
-        nmbrOfSeconds = 0;
-        trainerName = '';
-        trainerAge = 0;
-        trainerGender = '';
+    init : function() {
+        this.pokemonNumbers = [];
+        this.nmbrOfCaughtPokemons = 0;
+        this.startTime = 0;
+        this.endTime = 0;
+        this.timerId = null;
+        this.trainerName = '';
+        this.trainerAge = 0;
+        this.trainerGender = '';
+        log("Hjesan");
+        
     },
     // Metod som slumpar fram ett tal som förhåller sig mellan 0 och webbläsarens bredd minus bildens bredd
     getLeftPosition : () => {
@@ -43,7 +44,7 @@ const oGameData = {
     },
 
     // Metod som räknar ut och returnerar antalet millisekunder det tog att fånga alla 10 pokemons
-    nmbrOfMilliseconds: () => {
+    nmbrOfMilliseconds: function() {
         return this.endTime - this.startTime;
     }
 }
@@ -131,9 +132,11 @@ function validateForm() {
 function startGame() {
     document.querySelector('#formWrapper').classList.add('d-none');
     document.getElementById('gameField').classList.remove('d-none');
+    document.getElementById('pokemonArea').classList.remove('d-none');
     oGameData.trainerName = document.querySelector('#nick').value;
     oGameData.trainerAge = document.querySelector('#age').value;
     oGameData.trainerGender = document.getElementsByName('gender');
+    oGameData.startTimeInMilliseconds();
     
     //Musiken starta när spelen starta
     const audioElement = document.getElementById('musicGame');
@@ -148,67 +151,151 @@ function startGame() {
 }
 
 function pokemonChar() {
-    const pokemonsId = Array.from({length: 151},(_,i)=>i+1);
-    oGameData.pokemonNumbers = [];
+    const pokemonsId = Array.from({ length: 151 }, (_, i) => i + 1);
+    pokemonArea.textContent = '';
 
-    for(let i = 0; i < 5; i++) {
-        let randomPokemon = pokemonsId[Math.floor(Math.random()*pokemonsId.length)];
-        const pokemon = pokemonElement(randomPokemon);
+    for (let i = 0; i < 10; i++) {
+
+        const randomIndex = Math.floor(Math.random() * pokemonsId.length);
+        const randomPokemon = pokemonsId[randomIndex];
+        pokemonElement(randomPokemon);
         oGameData.pokemonNumbers.push(randomPokemon);
+        pokemonsId.splice(randomIndex, 1);
     }
-
-    setInterval(movePokemon, 3000);
+    setInterval(movePokemon, 3000); // Flytta Pokémon varje 3 sekunder
 }
 
 function pokemonElement(id) {
     const img = document.createElement('img');
-    const formattedId = String(id).padStart(3,'0');
-    img.src=`./assets/pokemons/${formattedId}.png`;
+    const formattedId = String(id).padStart(3, '0');
+    img.src = `./assets/pokemons/${formattedId}.png`;
     img.classList.add('pokemon');
     img.dataset.id = id;
-       
-    img.onload = () => {
-        const left = oGameData.getLeftPosition(img.width);
-        const top = oGameData.getTopPosition(img.height);
-    };
 
-    document.getElementById('gameField').appendChild(img);
-    
-    
+    document.getElementById('pokemonArea').appendChild(img);
 
-    function catchPokemon() {
+    const left = oGameData.getLeftPosition();
+    const top = oGameData.getTopPosition();
 
-        if (img.src = `./assets/pokemons/${formattedId}.png`) {
-            document.addEventListener("mouseover", (event) => {
-                event.target.classList.contains("pokemon");
-                event.target.src = ("./assets/ball.webp");
-                img.classList.add('ball');
-            });
-        
-        } else if (img.src = '.assets/ball.webp') {
-            document.addEventListener("mouseover", (event) => {
-                event.target.classList.contains("ball");
-                event.target.src = (`./assets/pokemons/${formattedId}.png`);
-                img.classList.add('pokemon');
-            });
+    img.style.position = 'absolute';
+    img.style.left = `${left}px`;
+    img.style.top = `${top}px`;
+
+    catchPokemon(img, formattedId);
+    return img;
+}
+
+function catchPokemon(img, formattedId) {
+    let toCatch = false;
+
+    img.addEventListener("mouseover", (event) => {
+        if (!toCatch && event.target.classList.contains("pokemon")) {
+            event.target.src = "./assets/ball.webp";
+            event.target.classList.remove('pokemon');
+            event.target.classList.add('ball');
+            toCatch = true;
+            oGameData.nmbrOfCaughtPokemons++;
+        } else if (toCatch && event.target.classList.contains("ball")) {
+            event.target.src = `./assets/pokemons/${formattedId}.png`;
+            event.target.classList.remove('ball');
+            event.target.classList.add('pokemon');
+            toCatch = false;
+            oGameData.nmbrOfCaughtPokemons--;
+        }
+        checkCaught();
+    });
+
+    // Kontrollera om alla Pokémon har fångats
+    function checkCaught() {
+        if (oGameData.nmbrOfCaughtPokemons === 10) {
+            endGame();
         }
     }
-
-    catchPokemon();
-
-    return img;
-
 }
 
 function movePokemon() {
     const pokemonArea = document.getElementById('gameField');
     const pokemons = pokemonArea.querySelectorAll('.pokemon');
+    const balls = pokemonArea.querySelectorAll('.ball');
 
     pokemons.forEach(pokemon => {
-        const randomX = Math.floor(Math.random() * (1500 - 100));
-        const randomY = Math.floor(Math.random() * (900 - 300));
+        const randomX = Math.floor(Math.random() * (window.innerWidth - pokemon.width));
+        const randomY = Math.floor(Math.random() * (window.innerHeight - pokemon.height));
         pokemon.style.left = `${randomX}px`;
         pokemon.style.top = `${randomY}px`;
     });
+
+    balls.forEach(ball => {
+        const randomX = Math.floor(Math.random() * (window.innerWidth - ball.width));
+        const randomY = Math.floor(Math.random() * (window.innerHeight - ball.height));
+        ball.style.left = `${randomX}px`;
+        ball.style.top = `${randomY}px`;
+    });
 }
 
+function endGame() {
+    let highScores = [];
+    document.querySelector('#pokemonArea').classList.add('d-none');
+    document.getElementById('highScore').classList.remove('d-none');
+    
+    console.log("Game Over! All Pokémon are caught.");
+
+    // Musiken stoppa och starta om vid nästa spel
+    const audioElement = document.getElementById('musicGame');
+    audioElement.pause();
+    audioElement.currentTime = 0;
+
+    //Tiden sluta räkna
+    oGameData.endTimeInMilliseconds();
+    const timeTaken = oGameData.nmbrOfMilliseconds();
+
+    //Rubrik som visar vinstmeddelande
+    document.querySelector('#winMsg').textContent = `Bra jobbat ${oGameData.trainerName}! Du har fångat alla Pokémon på ${timeTaken} millesekunder!`;
+
+    const newScore = {
+        name: oGameData.trainerName,
+        time: timeTaken
+    };
+    highScores.push(newScore);
+
+    //Jamföra tiden
+    highScores.sort((a, b) => a.time - b.time);
+    
+    const highscoreList = document.querySelector('.highscore-list');
+    //Ta bort den gamla
+    //highscoreList.textContent = '';
+    //Skriv ut listan
+    highScores.forEach(score => {
+        const createLiElement = document.createElement('li');
+        createLiElement.classList.add('yourScore');
+        createLiElement.textContent = `Spelare: ${score.name}, Tid: ${score.time}`;
+        highscoreList.appendChild(createLiElement);
+        log("fungar");
+    });
+
+    //Spela igen knappen
+    document.getElementById('playAgainBtn').addEventListener('click', resetGame);
+}
+
+function resetGame() {
+    console.log("Resetting game...");
+    oGameData.init();
+    
+    //Bockar ur kön i formuläret
+    const unCheckRadio = document.getElementsByName('gender');
+    unCheckRadio.forEach((radio) => {
+        radio.checked =false;
+    });
+
+    //Tar bort alla pokemon/bollar på spelplanen
+    const pokemonArea = document.getElementById('pokemonArea');
+    while (pokemonArea.firstChild) {
+        pokemonArea.removeChild(pokemonArea.firstChild);
+    }
+
+    nick.value = ''; //Rensar namn ifrån formuläret
+    age.value = ''; //Rensar ålder ifrån formuläret
+    document.getElementById('highScore').classList.add('d-none');
+    document.getElementById('gameField').classList.add('d-none');
+    document.getElementById('formWrapper').classList.remove('d-none');
+}
