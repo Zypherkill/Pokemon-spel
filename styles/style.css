@@ -1,0 +1,101 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/* Ser till så att bilderna får korrekt storlek och deras rörelse animeras */
+/* När ni sätter intervallen efter vilken pokemonen får sin nya position bör den intervallen överensstämma med tiden här. 3s. */
+img {
+    width: 300px;
+    transition: all 3s linear;
+    position: absolute;
+}
+
+body {
+    background-image: url(../assets/arena-background.png);
+    background-size:cover;
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh;
+}
+
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    background-image:url('../assets/background.png');
+    background-size:cover;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+}
+
+.form, .high-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    padding-left: 4rem;
+    padding-right: 4rem;
+    width: 50%;
+    font-size: 1.5rem;
+    background-color: hsla(0, 0%, 100%, 0.5);
+    border-radius: 15px;
+    font-weight: 600;
+
+    p {
+        align-self: flex-start;
+    }
+
+    h3 {
+        font-size: 1.4rem;
+    }
+
+    ol {
+        font-size: 1.3rem;
+    }
+
+    .gender {
+        display: flex;
+        gap: 2rem;
+        align-self: flex-start;
+    }
+    button {
+        background-color: red;
+        color: rgb(255, 255, 255);
+        padding: 0.5rem;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        height: 4rem;
+        border: none;
+        width: 100%;
+    }
+
+    #nick, #age {
+        border-radius: 15px;
+        padding: 0.5rem;
+        width: 100%;
+        height: 3rem;
+        border: none;
+    }
+}
+
+.game-field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.d-none {
+    display: none;
+}
+
+.error {
+    outline: 3px solid rgb(255, 0, 0);
+}
+
