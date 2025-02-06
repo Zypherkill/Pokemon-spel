@@ -217,21 +217,24 @@ function catchPokemon(img, formattedId) {
     }
 }
 
+//Pokemon och bollen position som de kan rör sig
 function movePokemon() {
     const pokemonArea = document.getElementById('gameField');
     const pokemons = pokemonArea.querySelectorAll('.pokemon');
     const balls = pokemonArea.querySelectorAll('.ball');
 
+    //För pokemon
     pokemons.forEach(pokemon => {
-        const randomX = Math.floor(Math.random() * (window.innerWidth - pokemon.width));
-        const randomY = Math.floor(Math.random() * (window.innerHeight - pokemon.height));
+        const randomX = oGameData.getLeftPosition; //Math.floor(Math.random() * (window.innerWidth - pokemon.width));
+        const randomY = oGameData.getTopPosition; //Math.floor(Math.random() * (window.innerHeight - pokemon.height));
         pokemon.style.left = `${randomX}px`;
         pokemon.style.top = `${randomY}px`;
     });
 
+    //För bollen
     balls.forEach(ball => {
-        const randomX = Math.floor(Math.random() * (window.innerWidth - ball.width));
-        const randomY = Math.floor(Math.random() * (window.innerHeight - ball.height));
+        const randomX = oGameData.getLeftPosition; //Math.floor(Math.random() * (window.innerWidth - ball.width));
+        const randomY = oGameData.getTopPosition; //Math.floor(Math.random() * (window.innerHeight - ball.height));
         ball.style.left = `${randomX}px`;
         ball.style.top = `${randomY}px`;
     });
