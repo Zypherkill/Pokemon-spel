@@ -20,7 +20,6 @@ const oGameData = {
         this.trainerName = '';
         this.trainerAge = 0;
         this.trainerGender = '';
-        log("Hjesan");
         
     },
     // Metod som slumpar fram ett tal som förhåller sig mellan 0 och webbläsarens bredd minus bildens bredd
@@ -151,7 +150,12 @@ function startGame() {
 }
 
 function pokemonChar() {
-    const pokemonsId = Array.from({ length: 151 }, (_, i) => i + 1);
+
+    const pokemonsId = [];
+
+    for (let i = 1; i <= 151; i++) {
+    pokemonsId.push(i);
+    }
     pokemonArea.textContent = '';
 
     for (let i = 0; i < 10; i++) {
@@ -213,28 +217,40 @@ function catchPokemon(img, formattedId) {
     }
 }
 
+//Pokemon och bollen position som de kan rör sig
 function movePokemon() {
     const pokemonArea = document.getElementById('gameField');
     const pokemons = pokemonArea.querySelectorAll('.pokemon');
     const balls = pokemonArea.querySelectorAll('.ball');
 
+    //För pokemon
     pokemons.forEach(pokemon => {
-        const randomX = Math.floor(Math.random() * (window.innerWidth - pokemon.width));
-        const randomY = Math.floor(Math.random() * (window.innerHeight - pokemon.height));
+        const randomX = oGameData.getLeftPosition; //Math.floor(Math.random() * (window.innerWidth - pokemon.width));
+        const randomY = oGameData.getTopPosition; //Math.floor(Math.random() * (window.innerHeight - pokemon.height));
         pokemon.style.left = `${randomX}px`;
         pokemon.style.top = `${randomY}px`;
     });
 
+    //För bollen
     balls.forEach(ball => {
-        const randomX = Math.floor(Math.random() * (window.innerWidth - ball.width));
-        const randomY = Math.floor(Math.random() * (window.innerHeight - ball.height));
+        const randomX = oGameData.getLeftPosition; //Math.floor(Math.random() * (window.innerWidth - ball.width));
+        const randomY = oGameData.getTopPosition; //Math.floor(Math.random() * (window.innerHeight - ball.height));
         ball.style.left = `${randomX}px`;
         ball.style.top = `${randomY}px`;
     });
 }
 
+let highScores = [];
+for (let i = 0; i < localStorage.length; i++) {
+    const name = localStorage.key(i);
+    const time = parseInt(localStorage.getItem(name));
+
+    // Lägg till i highScores-arrayen
+    highScores.push({ name, time });
+}
+
 function endGame() {
-    let highScores = [];
+    document.querySelector('#highscoreList').textContent = '';
     document.querySelector('#pokemonArea').classList.add('d-none');
     document.getElementById('highScore').classList.remove('d-none');
     
@@ -247,6 +263,10 @@ function endGame() {
 
     //Tiden sluta räkna
     oGameData.endTimeInMilliseconds();
+    scoreBoard();
+}
+
+function scoreBoard() {
     const timeTaken = oGameData.nmbrOfMilliseconds();
 
     //Rubrik som visar vinstmeddelande
@@ -256,22 +276,42 @@ function endGame() {
         name: oGameData.trainerName,
         time: timeTaken
     };
-    highScores.push(newScore);
+
+    const existingScoreIndex = highScores.findIndex(score => score.name === newScore.name);
+
+    if (existingScoreIndex !== -1) {
+        // Kolla om den nya tiden är bättre
+        if (highScores[existingScoreIndex].time > newScore.time) {
+            // Uppdatera med den nya, bättre tiden
+            highScores[existingScoreIndex].time = newScore.time;
+        }
+    } else {
+        // Lägg till det nya resultatet om spelaren inte fanns i listan
+        highScores.push(newScore);
+    }
 
     //Jamföra tiden
     highScores.sort((a, b) => a.time - b.time);
+
+    highScores = highScores.slice(0, 10);
     
-    const highscoreList = document.querySelector('.highscore-list');
-    //Ta bort den gamla
-    //highscoreList.textContent = '';
+    const betterTime = localStorage.getItem(oGameData.trainerName);
+
+    if(!betterTime || parseInt(betterTime) > timeTaken) {
+        localStorage.setItem(oGameData.trainerName, timeTaken);
+    }
+
+    localStorage.clear();
+
     //Skriv ut listan
     highScores.forEach(score => {
+        localStorage.setItem(score.name, score.time);
         const createLiElement = document.createElement('li');
         createLiElement.classList.add('yourScore');
         createLiElement.textContent = `Spelare: ${score.name}, Tid: ${score.time}`;
         highscoreList.appendChild(createLiElement);
         log("fungar");
-    });
+    });    
 
     //Spela igen knappen
     document.getElementById('playAgainBtn').addEventListener('click', resetGame);
