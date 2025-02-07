@@ -55,20 +55,21 @@ document.querySelector('form').addEventListener('submit', (event) => {
     validateForm();
 });
 
+//Funktion för att validera form så att allting är korrekt ifyllt
 function validateForm() {
-    log ("Hejsan!");
     const nick = document.getElementById('nick');
     const ageInput = document.getElementById('age');
     let gender = document.getElementsByName('gender');
     let checked = false;
     let errors = [];
-    let age = parseInt(ageInput.value, 10);    
-
+    let age = parseInt(ageInput.value, 10); //Omvandlar inputen till en siffra
+    
+        //Try catch sats för att kolla igenom alla inputäfalt om de är korrekt ifyllda och skickar ut errormeddelande samt markering vart felet i formen ligger
         try {
             if (!nick.value) {
                 nick.focus();//Fokuserar fältet om input-fältet är tomt
                 nick.classList.add('error');
-                nick.placeholder = "Användarnamnet får inte vara tomt.";
+                nick.placeholder = "Användarnamnet får inte vara tomt."; //Byter ut placeholdern så användaren kan se vad den gjort för fel
                 throw new Error("Användarnamnet får inte vara tomt.");
             } else if (nick.value.length < 5 || nick.value.length > 10) {
                 nick.focus(); //Fokuserar fältet om användaren har angivit för få eller för många tecken i sitt nick
@@ -92,6 +93,8 @@ function validateForm() {
             } else {
                 ageInput.classList.remove('error');
             }
+            
+            //Nestad for-loop som kollar igenom radio lyssnare för att se om den är icheckad
             for (let i = 0; i < gender.length; i++) {
                 gender[i].addEventListener('change', () => {
                   // Ta bort 'error'-klassen från alla radio-knappar
@@ -108,9 +111,8 @@ function validateForm() {
                     checked = true;
                 }
             }
-            
+                //If sats som marker radio knapp om ingen är icheckad
             if (!checked) {
-                // Ingen radio-knapp är markerad
                 for (let i = 0; i < gender.length; i++) {
                     gender[i].classList.add('error');
                 }
@@ -128,6 +130,7 @@ function validateForm() {
         startGame();
     }
 
+//Funktion för att starta spelet
 function startGame() {
     document.querySelector('#formWrapper').classList.add('d-none');
     document.getElementById('gameField').classList.remove('d-none');
@@ -135,12 +138,13 @@ function startGame() {
     oGameData.trainerName = document.querySelector('#nick').value;
     oGameData.trainerAge = document.querySelector('#age').value;
     oGameData.trainerGender = document.getElementsByName('gender');
-    oGameData.startTimeInMilliseconds();
+    oGameData.startTimeInMilliseconds(); //Startar tiden
     
     //Musiken starta när spelen starta
     const audioElement = document.getElementById('musicGame');
     audioElement.volume = 0.050;
 
+    //Gör så att musiken startar om
     audioElement.play();
     audioElement.addEventListener('ended', () => {
         audioElement.play();
@@ -149,35 +153,41 @@ function startGame() {
     pokemonChar();
 }
 
+//Funktion för att att få slumpa fram pokemons
 function pokemonChar() {
 
     const pokemonsId = [];
-
+    
+    //For-loop för att pusha in alla 151 siffror i arrayen
     for (let i = 1; i <= 151; i++) {
     pokemonsId.push(i);
     }
     pokemonArea.textContent = '';
-
+    
+    //Loopar igenom 10 gånger genom arrayen pokemonsId för att välja ut 10 slumpade pokemons
     for (let i = 0; i < 10; i++) {
 
         const randomIndex = Math.floor(Math.random() * pokemonsId.length);
         const randomPokemon = pokemonsId[randomIndex];
-        pokemonElement(randomPokemon);
+        pokemonElement(randomPokemon); //Annan funktion tillkalas för att ge varja siffra korrekt bild
         oGameData.pokemonNumbers.push(randomPokemon);
-        pokemonsId.splice(randomIndex, 1);
+        pokemonsId.splice(randomIndex, 1); //Splice för att unvika att skapa dubbletter
     }
     setInterval(movePokemon, 3000); // Flytta Pokémon varje 3 sekunder
 }
 
+//Skapa upp bilden på pokemon
 function pokemonElement(id) {
     const img = document.createElement('img');
-    const formattedId = String(id).padStart(3, '0');
+    const formattedId = String(id).padStart(3, '0'); //Formatterar id'et så det alltid är tre siffror
     img.src = `./assets/pokemons/${formattedId}.png`;
     img.classList.add('pokemon');
     img.dataset.id = id;
 
+    //Sätter ut pokemonsen på spelplanen
     document.getElementById('pokemonArea').appendChild(img);
 
+    //Slumpa platsen
     const left = oGameData.getLeftPosition();
     const top = oGameData.getTopPosition();
 
@@ -191,7 +201,7 @@ function pokemonElement(id) {
 
 function catchPokemon(img, formattedId) {
     let toCatch = false;
-
+    // IF sats som gör det möjligt att fånga eller råka släppa pokemons
     img.addEventListener("mouseover", (event) => {
         if (!toCatch && event.target.classList.contains("pokemon")) {
             event.target.src = "./assets/ball.webp";
@@ -217,35 +227,38 @@ function catchPokemon(img, formattedId) {
     }
 }
 
-//Pokemon och bollen position som de kan rör sig
+//Pokemon och bollens position som de kan röra sig
 function movePokemon() {
     const pokemonArea = document.getElementById('gameField');
     const pokemons = pokemonArea.querySelectorAll('.pokemon');
     const balls = pokemonArea.querySelectorAll('.ball');
 
-    //För pokemon
+    //För pokemon 
     pokemons.forEach(pokemon => {
-        const randomX = oGameData.getLeftPosition; //Math.floor(Math.random() * (window.innerWidth - pokemon.width));
-        const randomY = oGameData.getTopPosition; //Math.floor(Math.random() * (window.innerHeight - pokemon.height));
+        //Hjälpa att de rör sig på skrämen
+        const randomX = Math.floor(Math.random() * (window.innerWidth - pokemon.width));
+        const randomY = Math.floor(Math.random() * (window.innerHeight - pokemon.height));
         pokemon.style.left = `${randomX}px`;
         pokemon.style.top = `${randomY}px`;
     });
 
     //För bollen
     balls.forEach(ball => {
-        const randomX = oGameData.getLeftPosition; //Math.floor(Math.random() * (window.innerWidth - ball.width));
-        const randomY = oGameData.getTopPosition; //Math.floor(Math.random() * (window.innerHeight - ball.height));
+        const randomX = Math.floor(Math.random() * (window.innerWidth - ball.width));
+        const randomY = Math.floor(Math.random() * (window.innerHeight - ball.height));
         ball.style.left = `${randomX}px`;
         ball.style.top = `${randomY}px`;
     });
 }
 
+
 let highScores = [];
+
+//Hämtar rekord från localStorage och slänger in det i arrayen highScores
 for (let i = 0; i < localStorage.length; i++) {
     const name = localStorage.key(i);
     const time = parseInt(localStorage.getItem(name));
 
-    // Lägg till i highScores-arrayen
     highScores.push({ name, time });
 }
 
@@ -254,24 +267,25 @@ function endGame() {
     document.querySelector('#pokemonArea').classList.add('d-none');
     document.getElementById('highScore').classList.remove('d-none');
     
-    console.log("Game Over! All Pokémon are caught.");
-
     // Musiken stoppa och starta om vid nästa spel
     const audioElement = document.getElementById('musicGame');
     audioElement.pause();
     audioElement.currentTime = 0;
 
-    //Tiden sluta räkna
+    //Stoppar tiden
     oGameData.endTimeInMilliseconds();
+    
     scoreBoard();
 }
 
+//High score listan
 function scoreBoard() {
     const timeTaken = oGameData.nmbrOfMilliseconds();
 
     //Rubrik som visar vinstmeddelande
     document.querySelector('#winMsg').textContent = `Bra jobbat ${oGameData.trainerName}! Du har fångat alla Pokémon på ${timeTaken} millesekunder!`;
 
+    //Konstant som sparar tränarensnamn och tid
     const newScore = {
         name: oGameData.trainerName,
         time: timeTaken
@@ -290,27 +304,28 @@ function scoreBoard() {
         highScores.push(newScore);
     }
 
-    //Jamföra tiden
+    //Jamför tiden
     highScores.sort((a, b) => a.time - b.time);
 
+    //Ser till att det bara är 10st på highscore listan
     highScores = highScores.slice(0, 10);
     
+    // Hämtar den lagrade bästa tiden för tränaren från localstorage
     const betterTime = localStorage.getItem(oGameData.trainerName);
-
+    // IF sats som uppdaterar till den bättre tiden i localestorage
     if(!betterTime || parseInt(betterTime) > timeTaken) {
-        localStorage.setItem(oGameData.trainerName, timeTaken);
+        localStorage.setItem(oGameData.trainerName, timeTaken); 
     }
 
-    localStorage.clear();
+    
 
-    //Skriv ut listan
+    //Skapar element i listan för varje spelare
     highScores.forEach(score => {
         localStorage.setItem(score.name, score.time);
         const createLiElement = document.createElement('li');
         createLiElement.classList.add('yourScore');
         createLiElement.textContent = `Spelare: ${score.name}, Tid: ${score.time}`;
         highscoreList.appendChild(createLiElement);
-        log("fungar");
     });    
 
     //Spela igen knappen
